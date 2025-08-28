@@ -731,3 +731,230 @@
             setInterval(() => {
                 const minutes = Math.floor((new Date() - sessionStartTime) / 60000);
                 document.getElementById('sessionTime').textContent = minutes;
+            }, 60000);
+        }
+
+        async function submitMood() {
+            const name = document.getElementById('studentName').value.trim();
+            const language = document.getElementById('language').value;
+            const comment = document.getElementById('comment').value;
+
+            // Validation
+            if (!name) {
+                alert('Merci de renseigner ton prénom !');
+                return;
+            }
+
+            if (!selectedEmoji) {
+                alert('Merci de choisir un emoji !');
+                return;
+            }
+
+            if (!language || language === 'Choisis un langage') {
+                alert('Merci de choisir un langage de programmation !');
+                return;
+            }
+
+            // Créer l'objet mood
+            const mood = {
+                name: name,
+                emoji: selectedEmoji,
+                language: language,
+                comment: comment || '',
+                timestamp: new Date().toISOString()
+            };
+
+            // Ajouter le mood
+            const success = await addMood(mood);
+            
+            if (success) {
+                // Réinitialiser le formulaire
+                document.getElementById('moodForm').reset();
+                selectedEmoji = null;
+                document.querySelectorAll('.emoji-btn').forEach(btn => btn.classList.remove('selected'));
+                
+                // Message de succès
+                console.log('✅ Mood code envoyé avec succès!');
+            }
+        }
+
+        function updateDisplay() {
+            const moodDisplay = document.getElementById('moodList');
+            const participantsCount = document.getElementById('totalParticipants');
+            const uniqueMoodsCount = document.getElementById('moodVariety');
+            
+            if (!moodDisplay) return;
+
+            // Mise à jour des statistiques
+            participantsCount.textContent = moods.length;
+            const uniqueEmojis = new Set(moods.map(m => m.emoji));
+            uniqueMoodsCount.textContent = uniqueEmojis.size;
+
+            if (moods.length === 0) {
+                moodDisplay.innerHTML = `
+                    <div class="no-moods">
+                        <p>🤖 En attente des premiers codes mood...</p>
+                        <p>Mode collaboratif activé - Synchronisation temps réel</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Afficher les mood codes
+            moodDisplay.innerHTML = moods.map(mood => `
+                <div class="mood-item">
+                    <div class="mood-header">
+                        <span class="student-name">${mood.name}</span>
+                        <span class="timestamp">${formatTimestamp(mood.created_at || mood.timestamp)}</span>
+                    </div>
+                    <div class="code-display">
+                        <div class="language-tag">${mood.language}</div>
+                        <pre><code>// ${mood.comment || 'Code mood'} ${mood.emoji}
+const mood = "${mood.emoji}";
+console.log("Humeur du jour:", mood);
+
+// ${mood.name} - ${mood.language}</code></pre>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return "À l'instant";
+            if (diffMins < 60) return `Il y a ${diffMins} min`;
+            if (diffMins < 1440) return `Il y a ${Math.floor(diffMins / 60)}h`;
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        // ========================================
+        // CONTRÔLES ENSEIGNANT
+        // ========================================
+
+        async function loadMoods() {
+            if (CONFIG.mode === 'supabase' && supabase) {
+                await loadMoodsFromSupabase();
+            } else {
+                moods = JSON.parse(localStorage.getItem('emoji-mood-local') || '[]');
+                updateDisplay();
+            }
+            console.log('🔄 Moods rechargés');
+        }
+
+        async function clearAllMoods() {
+            if (!confirm('Êtes-vous sûr de vouloir effacer tous les mood codes ?')) {
+                return;
+            }
+
+            if (CONFIG.mode === 'supabase' && supabase) {
+                try {
+                    const { error } = await supabase.from('moods').delete().neq('id', 0);
+                    if (error) throw error;
+                    console.log('🗑️ Tous les moods supprimés de Supabase');
+                } catch (error) {
+                    console.error('❌ Erreur suppression Supabase:', error);
+                }
+            } else {
+                localStorage.removeItem('emoji-mood-local');
+                console.log('🗑️ Tous les moods supprimés du stockage local');
+            }
+            
+            moods = [];
+            updateDisplay();
+        }
+
+        function exportMoods() {
+            if (moods.length === 0) {
+                alert('Aucun mood code à exporter !');
+                return;
+            }
+
+            // Créer le CSV
+            const headers = ['Nom', 'Emoji', 'Langage', 'Commentaire', 'Timestamp'];
+            const csvContent = [
+                headers.join(','),
+                ...moods.map(mood => [
+                    `"${mood.name}"`,
+                    `"${mood.emoji}"`,
+                    `"${mood.language}"`,
+                    `"${mood.comment || ''}"`,
+                    `"${mood.created_at || mood.timestamp}"`
+                ].join(','))
+            ].join('\n');
+
+            // Télécharger
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `mood-codes-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportMoodsJSON() {
+            if (moods.length === 0) {
+                alert('Aucun mood code à exporter !');
+                return;
+            }
+
+            const jsonContent = JSON.stringify(moods, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `mood-codes-${new Date().toISOString().split('T')[0]}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ========================================
+        // INITIALISATION
+        // ========================================
+
+        async function init() {
+            console.log('🚀 Initialisation de l\'application...');
+            
+            sessionStartTime = new Date();
+            
+            // Tentative de connexion Supabase
+            const supabaseConnected = await initSupabase();
+            
+            if (!supabaseConnected) {
+                // Mode local
+                initLocalMode();
+            }
+            
+            // Configuration des écouteurs d'événements
+            setupEventListeners();
+            
+            // Chargement initial des données
+            await loadMoods();
+            
+            console.log('✅ Application initialisée avec succès');
+        }
+
+        // ========================================
+        // FONCTIONS GLOBALES POUR LES CONTRÔLES
+        // ========================================
+        
+        // Exposer les fonctions globalement pour les onclick handlers
+        window.loadMoods = loadMoods;
+        window.clearAllMoods = clearAllMoods;
+        window.exportMoods = exportMoods;
+        window.exportMoodsJSON = exportMoodsJSON;
+
+        // Démarrer l'application quand le DOM est prêt
+        document.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
