@@ -3,7 +3,7 @@
 *Un petit brise-glace sympa pour vos cours de programmation*
 
 [![Demo](https://img.shields.io/badge/✨_essayer-maintenant-blue)](https://votre-username.github.io/emoji-code-mood)
-[![Licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
+[![Licence](https://img.shields.io/badge/licence-GNU%20GPL%20v3-green)](LICENSE)
 
 ---
 
@@ -59,7 +59,8 @@ Aucune installation nécessaire, ça fonctionne directement dans votre navigateu
 ### Option avec données partagées (10 minutes de plus)
 Si vous voulez que tous vos étudiants voient les réponses en temps réel :
 - 📖 **Guide Supabase** (recommandé) : [docs/supabase-setup.md](docs/supabase-setup.md)
-- 📖 **Guide Firebase** (alternative) : [docs/firebase.md](docs/firebase.md)
+
+La configuration Supabase est automatique et sécurisée via les secrets GitHub `SUPABASE_URL` et `SUPABASE_ANON_KEY`.
 
 ## 🎨 Personnaliser
 
@@ -109,7 +110,7 @@ Vous pouvez facilement adapter l'outil à votre contexte :
 ## 🚀 Technologies utilisées
 
 - **HTML/CSS/JavaScript** - Simple et efficace
-- **Supabase** ou **Firebase** - Pour la synchronisation temps réel (optionnel)
+- **Supabase** - Pour la synchronisation temps réel (configuration automatique via GitHub secrets)
 - **GitHub Pages** - Hébergement gratuit
 
 ## 🤝 Contributions bienvenues
