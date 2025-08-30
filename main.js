@@ -510,23 +510,6 @@ window.addEventListener('load', () => {
     }
 });
 
-// Auto-détection si le fichier private-config.js est présent
-// Pour utiliser vos propres clés, créez ce fichier localement :
-/*
-window.PRIVATE_CONFIG = {
-    mode: 'supabase',
-    supabaseUrl: 'https://xxx.supabase.co',
-    supabaseAnonKey: 'eyJ...',
-    useRealtime: true
-};
-*/
 
-// Debug helper - Vous pouvez supprimer cette section en production
-// Debug helper - Supprime les fonctions liées au mode local
-window.debugEmojiMood = {
-    getConfig: () => CONFIG,
-    getMoods: () => moods
-};
 
-// Message de debug dans la console
-console.log('🎭 Emoji Code Mood chargé !');
+
