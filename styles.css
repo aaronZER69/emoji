@@ -41,7 +41,7 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
-    background: #3ECF8E;
+    background: #5c1bd6;
     color: white;
     padding: 12px 28px;
     border-radius: 8px;
@@ -221,7 +221,7 @@ body {
 }
 
 .form-section, .display-section {
-    background: white;
+    background: rgb(191, 221, 20);
     padding: 30px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
