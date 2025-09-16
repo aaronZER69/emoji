@@ -216,8 +216,10 @@ async function submitSymptome() {
 }
 
 async function addSymptome(symptome) {
-    if (!supabase) return alert('Connexion non établie !'), false;
-
+    if (!supabase) {
+        alert('Connexion non établie !');
+        return false;
+    }
     try {
         const cinqMinutes = new Date(Date.now() - 5 * 60 * 1000).toISOString();
         const { data: existing } = await supabase.from('symptome')
@@ -227,7 +229,10 @@ async function addSymptome(symptome) {
             .gte('created_at', cinqMinutes)
             .limit(1);
 
-        if (existing && existing.length > 0) return alert('Symptôme déjà enregistré récemment !'), false;
+        if (existing && existing.length > 0) {
+            alert('Symptôme déjà enregistré récemment !');
+            return false;
+        }
 
         const { error } = await supabase.from('symptome').insert([symptome]);
         if (error) throw error;
