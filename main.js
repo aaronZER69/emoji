@@ -260,7 +260,6 @@ async function addSymptome(symptome) {
 
         if (existing && existing.length > 0) {
             alert('Ce symptôme a déjà été enregistré récemment.');
-            
             return false;
         }
 
