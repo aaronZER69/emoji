@@ -260,7 +260,7 @@ async function addSymptome(symptome) {
 
         if (existing && existing.length > 0) {
             alert('Ce symptôme a déjà été enregistré récemment.');
-            return false;
+            return false
         }
 
         const { error } = await supabase.from('symptome').insert([symptome]);
