@@ -35,6 +35,7 @@ async function initSupabase() {
         
         // Initialisation du client via le module (avec attente intégrée)
         supabase = await getSupabaseClient();
+        console.log('Client Supabase:', supabase);
         
         // Test de connexion avec la table "humeur"
         console.log('🧪 Test de connexion à la table humeur...');
