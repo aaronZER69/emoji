@@ -295,8 +295,6 @@ function updateVisualization() {
 // ========================================
 // INITIALISATION APP
 // ========================================
-let appInitialized = false;
-
 function setupEventListeners() {
     console.log('🔧 Initialisation des interactions utilisateur');
 
@@ -337,8 +335,6 @@ function setupEventListeners() {
         }
     });
 }
-
-
 async function initApp() {
     if(appInitialized) return;
     appInitialized=true;
