@@ -1,22 +1,20 @@
-// main.js - Version corrigée complète
-// ========================================
-// CONFIGURATION ET INITIALISATION
+// main.js - Version Cabinet Médical
 // ========================================
 
-console.log('🎭 Emoji Code Humeur - Version Module Corrigé v2.4');
+console.log('🏥 Cabinet Médical - Gestion Symptômes v2.3');
 
+// Variables globales
 let supabase = null;
-let humeurs = [];
-let selectedEmoji = '';
+let symptomes = [];
+let selectedSymptomeEmoji = '';
 let sessionStartTime = new Date();
 let autoRefreshInterval = null;
-let connectionCheckInterval = null;
 let isConnected = false;
 let realtimeChannel = null;
-let appInitialized = false;
 
-const AUTO_REFRESH_INTERVAL = 30000; // 30s
-const CONNECTION_CHECK_INTERVAL = 10000; // 10s
+// Configuration auto-actualisation
+const AUTO_REFRESH_INTERVAL = 30000; // 30 secondes
+const CONNECTION_CHECK_INTERVAL = 10000; // 10 secondes
 
 // ========================================
 // INITIALISATION SUPABASE
@@ -24,7 +22,7 @@ const CONNECTION_CHECK_INTERVAL = 10000; // 10s
 
 async function initSupabase() {
     try {
-        console.log('🔧 Initialisation Supabase...');
+        console.log('🔧 Initialisation Supabase pour cabinet médical...');
         const { getSupabaseClient, checkSupabaseStatus } = await import('./supabaseClient.js');
         const status = checkSupabaseStatus();
         console.log('🔍 État Supabase:', status);
@@ -32,22 +30,18 @@ async function initSupabase() {
         supabase = await getSupabaseClient();
         console.log('Client Supabase:', supabase);
 
-        // Test de connexion simple
-        const { data, error } = await supabase.from('humeur').select('*').limit(1);
-        if (error) throw new Error(`Erreur table 'humeur': ${error.message}`);
+        const { data, error } = await supabase.from('symptome').select('count').limit(1);
+        if (error) throw new Error(`Erreur table symptome: ${error.message}`);
 
-        console.log('🚀 Supabase connecté avec succès');
-        console.log('📊 URL configurée:', window.PRIVATE_CONFIG?.supabaseUrl);
-
+        console.log('🚀 Supabase connecté');
         isConnected = true;
         updateConnectionStatus(true);
 
-        await loadHumeursFromSupabase();
+        await loadSymptomesFromSupabase();
         setupRealtimeSubscription();
         startAutoRefresh();
 
         return true;
-
     } catch (error) {
         console.error('❌ Erreur init Supabase:', error);
         showConnectionError(error);
@@ -61,32 +55,21 @@ function showConnectionError(error) {
     const existingError = document.querySelector('.connection-error');
     if (existingError) existingError.remove();
 
-    const container = document.createElement('div');
-    container.className = 'connection-error';
-    container.style.cssText = `
+    const errorContainer = document.createElement('div');
+    errorContainer.className = 'connection-error';
+    errorContainer.style.cssText = `
         position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-        background: #ffebee; border: 2px solid #f44336; border-radius: 8px; padding: 20px;
-        max-width: 600px; z-index: 10000; font-family: system-ui, sans-serif;
+        background: #ffebee; border: 2px solid #f44336; border-radius: 8px;
+        padding: 20px; max-width: 600px; z-index: 10000; font-family: system-ui, sans-serif;
         box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     `;
-    container.innerHTML = `
-        <h3 style="color:#d32f2f; margin:0 0 10px 0;">❌ Erreur de connexion Supabase</h3>
-        <p style="margin:0 0 10px 0;"><strong>Détails :</strong> ${error.message}</p>
-        <details style="margin:10px 0;">
-            <summary style="cursor:pointer;color:#1976d2;">🔍 Diagnostic détaillé</summary>
-            <div style="margin-top:10px; padding:10px; background:#f5f5f5; border-radius:4px; font-size:12px;">
-                • URL Supabase : ${window.PRIVATE_CONFIG?.supabaseUrl || '❌ Manquant'}<br>
-                • Clé Supabase : ${window.PRIVATE_CONFIG?.supabaseAnonKey ? '✅ Présente' : '❌ Manquante'}<br>
-                • Bibliothèque : ${typeof supabase !== 'undefined' ? '✅ Chargée' : '❌ Non chargée'}<br>
-                • CreateClient : ${supabase?.createClient ? '✅ Disponible' : '❌ Indisponible'}
-            </div>
-        </details>
-        <div style="margin-top:15px;">
-            <button onclick="window.location.reload()" style="background:#f44336;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;margin-right:10px;">🔄 Recharger</button>
-            <button onclick="this.parentElement.parentElement.remove()" style="background:#757575;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;">Fermer</button>
-        </div>
+    errorContainer.innerHTML = `
+        <h3 style="color:#d32f2f;">❌ Erreur connexion Supabase</h3>
+        <p>${error.message}</p>
+        <button onclick="window.location.reload()" style="background:#f44336;color:white;padding:8px 16px;border:none;border-radius:4px;cursor:pointer;">🔄 Recharger</button>
+        <button onclick="this.parentElement.remove()" style="background:#757575;color:white;padding:8px 16px;border:none;border-radius:4px;cursor:pointer;">Fermer</button>
     `;
-    document.body.insertBefore(container, document.body.firstChild);
+    document.body.insertBefore(errorContainer, document.body.firstChild);
 }
 
 function updateConnectionStatus(connected) {
@@ -99,37 +82,35 @@ function updateConnectionStatus(connected) {
             indicator.style.background = '#e3f2fd';
             indicator.style.color = '#1976d2';
             icon.textContent = '⚡';
-            text.textContent = 'Connecté via module - Synchronisation automatique';
+            text.textContent = 'Connecté - Synchronisation automatique';
         } else {
             indicator.style.background = '#ffebee';
             indicator.style.color = '#d32f2f';
             icon.textContent = '🔌';
-            text.textContent = 'Erreur de connexion - Voir détails';
+            text.textContent = 'Erreur de connexion';
         }
     }
 }
 
 // ========================================
-// CHARGEMENT HUMEURS
+// CHARGEMENT DES SYMPTOMES
 // ========================================
 
-async function loadHumeursFromSupabase() {
+async function loadSymptomesFromSupabase() {
     if (!supabase || !isConnected) return;
 
     try {
-        console.log('📥 Chargement des humeurs...');
-        const { data, error } = await supabase.from('humeur').select('*').order('created_at', { ascending:false }).limit(100);
+        console.log('📥 Chargement des symptômes...');
+        const { data, error } = await supabase.from('symptome').select('*').order('created_at', { ascending: false }).limit(100);
         if (error) throw error;
 
-        humeurs = data || [];
+        symptomes = data || [];
         updateDisplay();
-        if (!isConnected) { isConnected = true; updateConnectionStatus(true); }
-
+        console.log(`📊 ${symptomes.length} symptômes chargés`);
     } catch (error) {
         console.error('❌ Erreur chargement:', error);
         isConnected = false;
         updateConnectionStatus(false);
-
         setTimeout(() => initSupabase(), 5000);
     }
 }
@@ -140,37 +121,39 @@ async function loadHumeursFromSupabase() {
 
 function setupRealtimeSubscription() {
     if (!supabase) return;
-
     console.log('📡 Configuration temps réel...');
-    realtimeChannel = supabase.channel('humeur_realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'humeur' }, payload => {
+
+    realtimeChannel = supabase
+        .channel('symptome_realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'symptome' }, payload => {
             console.log('🔄 Changement temps réel:', payload.eventType);
+
             if (payload.eventType === 'INSERT') {
-                humeurs.unshift(payload.new);
+                symptomes.unshift(payload.new);
                 updateDisplay();
             } else if (payload.eventType === 'DELETE') {
-                loadHumeursFromSupabase();
+                loadSymptomesFromSupabase();
             }
         })
-        .subscribe();
+        .subscribe(status => {
+            console.log('📡 Statut temps réel:', status);
+            isConnected = status === 'SUBSCRIBED';
+            updateConnectionStatus(isConnected);
+        });
 }
 
-// ========================================
-// AUTO REFRESH ET RECONNEXION
-// ========================================
-
 function startAutoRefresh() {
-    console.log('⏰ Démarrage auto-refresh...');
-    autoRefreshInterval = setInterval(() => loadHumeursFromSupabase(), AUTO_REFRESH_INTERVAL);
+    autoRefreshInterval = setInterval(loadSymptomesFromSupabase, AUTO_REFRESH_INTERVAL);
 
-    connectionCheckInterval = setInterval(async () => {
+    setInterval(async () => {
         if (!isConnected && supabase) {
+            console.log('🔌 Tentative reconnexion...');
             try {
-                const { data, error } = await supabase.from('humeur').select('*').limit(1);
+                const { error } = await supabase.from('symptome').select('count').limit(1);
                 if (!error) {
                     isConnected = true;
                     updateConnectionStatus(true);
-                    await loadHumeursFromSupabase();
+                    await loadSymptomesFromSupabase();
                     console.log('✅ Reconnexion réussie');
                 }
             } catch {}
@@ -179,146 +162,140 @@ function startAutoRefresh() {
 }
 
 // ========================================
-// SOUMISSION HUMEURS
+// GESTION UI
 // ========================================
 
-async function submitMood() {
-    const nom = document.getElementById('studentName')?.value?.trim();
-    const langagePrefere = document.getElementById('favoriteLanguage')?.value;
-    const autrePreference = document.getElementById('otherPreference')?.value;
+function setupEventListeners() {
+    console.log('🔧 Setup interactions UI');
+
+    const emojiButtons = document.querySelectorAll('.emoji-btn');
+    emojiButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            emojiButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedSymptomeEmoji = btn.dataset.emoji;
+            console.log('✅ Emoji sélectionné:', selectedSymptomeEmoji);
+        });
+    });
+
+    const form = document.getElementById('symptomeForm');
+    if (form) form.addEventListener('submit', e => { e.preventDefault(); submitSymptome(); });
+}
+
+// ========================================
+// GESTION DES SYMPTOMES
+// ========================================
+
+async function submitSymptome() {
+    const patientName = document.getElementById('patientName')?.value?.trim();
     const commentaire = document.getElementById('comment')?.value?.trim();
     const submitBtn = document.getElementById('submitBtn');
 
-    if (!selectedEmoji || !langagePrefere || !autrePreference) {
-        alert('Remplis tous les champs et choisis un emoji !');
-        return;
-    }
+    if (!selectedSymptomeEmoji) return alert('Sélectionne un symptôme !');
+    if (!patientName) return alert('Nom du patient requis !');
 
-    if (submitBtn) { submitBtn.disabled=true; submitBtn.textContent='🔄 Envoi...'; }
+    submitBtn.disabled = true;
+    submitBtn.textContent = '🔄 Envoi...';
 
-    const humeur = { nom, emoji:selectedEmoji, langage_prefere:langagePrefere, autre_preference:autrePreference || null, commentaire:commentaire || null };
+    const symptome = {
+        nom: patientName,
+        emoji: selectedSymptomeEmoji,
+        commentaire: commentaire || null
+    };
 
-    const success = await addHumeur(humeur);
-    if (success) resetForm();
-    if (submitBtn) {
-        submitBtn.textContent = success ? '✅ Envoyé !' : '❌ Erreur';
-        setTimeout(() => { submitBtn.textContent='🚀 Partager mon humeur'; submitBtn.disabled=false; }, 2500);
+    const success = await addSymptome(symptome);
+
+    if (success) {
+        resetForm();
+        submitBtn.textContent = '✅ Envoyé !';
+        setTimeout(() => { submitBtn.textContent = 'Partager symptôme'; submitBtn.disabled = false; }, 2000);
+    } else {
+        submitBtn.textContent = '❌ Erreur';
+        setTimeout(() => { submitBtn.textContent = 'Partager symptôme'; submitBtn.disabled = false; }, 2000);
     }
 }
 
-async function addHumeur(humeur) {
-    if (!supabase) { alert('Erreur : Supabase non connecté'); return false; }
+async function addSymptome(symptome) {
+    if (!supabase) return alert('Connexion non établie !'), false;
 
     try {
-        let query = supabase.from('humeur').select('*').eq('nom', humeur.nom).eq('emoji', humeur.emoji).eq('langage_prefere', humeur.langage_prefere);
-        if (humeur.autre_preference) query = query.eq('autre_preference', humeur.autre_preference);
-        else query = query.is('autre_preference', null);
+        const cinqMinutes = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const { data: existing } = await supabase.from('symptome')
+            .select('*')
+            .eq('nom', symptome.nom)
+            .eq('emoji', symptome.emoji)
+            .gte('created_at', cinqMinutes)
+            .limit(1);
 
-        const cinqMinutesAgo = new Date(Date.now() - 5*60*1000).toISOString();
-        query = query.gte('created_at', cinqMinutesAgo).limit(1);
+        if (existing && existing.length > 0) return alert('Symptôme déjà enregistré récemment !'), false;
 
-        const { data: existing, error: selectError } = await query;
-        if (selectError) throw selectError;
-        if (existing?.length > 0) { alert('Doublon détecté. Attends quelques minutes.'); return false; }
-
-        const { error } = await supabase.from('humeur').insert([humeur]);
+        const { error } = await supabase.from('symptome').insert([symptome]);
         if (error) throw error;
         return true;
-
     } catch (error) {
-        alert('Erreur envoi: '+error.message);
+        console.error('❌ Erreur ajout symptôme:', error);
+        alert(`Erreur: ${error.message}`);
         return false;
     }
 }
 
 function resetForm() {
-    const form = document.getElementById('moodForm');
-    if (form) form.reset();
+    document.getElementById('symptomeForm')?.reset();
     document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
-    selectedEmoji = '';
+    selectedSymptomeEmoji = '';
 }
 
 // ========================================
 // AFFICHAGE
 // ========================================
 
-function updateDisplay() { updateStats(); updateMoodList(); updateVisualization(); }
+function updateDisplay() {
+    updateStats();
+    updateSymptomeList();
+}
 
 function updateStats() {
-    const totalEl = document.getElementById('totalParticipants');
-    const varietyEl = document.getElementById('moodVariety');
-    const timeEl = document.getElementById('sessionTime');
-
-    if (totalEl) totalEl.textContent = humeurs.length;
-    if (varietyEl) varietyEl.textContent = new Set(humeurs.map(h=>h.emoji)).size;
-    if (timeEl) timeEl.textContent = Math.floor((new Date()-sessionStartTime)/60000);
+    document.getElementById('totalPatients')?.textContent = symptomes.length;
 }
 
-function updateMoodList() {
-    const container = document.getElementById('moodList');
+function updateSymptomeList() {
+    const container = document.getElementById('symptomeList');
     if (!container) return;
-    if (humeurs.length===0) { container.innerHTML='<p>🤖 En attente des retours...</p>'; return; }
 
-    container.innerHTML = humeurs.map(h => {
-        const codeSnippet = generateCodeSnippet(h);
-        const timeDisplay = new Date(h.created_at).toISOString();
-        return `<div class="mood-item">
-            <span>${escapeHtml(h.nom)} ${h.emoji} (${h.langage_prefere})</span>
-            <span>${timeDisplay}</span>
-            <div>${h.commentaire||''}</div>
-            <div>${h.autre_preference||''}</div>
-            <pre>${codeSnippet}</pre>
-        </div>`;
-    }).join('');
+    if (symptomes.length === 0) {
+        container.innerHTML = `<p>🤖 Aucun symptôme enregistré pour l'instant.</p>`;
+        return;
+    }
+
+    container.innerHTML = symptomes.map(s => `
+        <div class="symptome-item">
+            <span class="symptome-name">${escapeHtml(s.nom)}</span>
+            <span class="symptome-emoji">${s.emoji}</span>
+            ${s.commentaire ? `<span class="symptome-comment">"${escapeHtml(s.commentaire)}"</span>` : ''}
+        </div>
+    `).join('');
 }
 
-function generateCodeSnippet(h) {
-    const lang = h.langage_prefere || 'javascript';
-    const templates = {
-        javascript: `let humeur="${h.emoji}";${h.commentaire ? ' // '+escapeHtml(h.commentaire):''}`,
-        python: `humeur="${h.emoji}"${h.commentaire ? '  # '+escapeHtml(h.commentaire):''}`,
-        java: `String humeur="${h.emoji}";${h.commentaire ? ' // '+escapeHtml(h.commentaire):''}`
-    };
-    return templates[lang] || templates.javascript;
-}
-
-function escapeHtml(text) { const div=document.createElement('div'); div.textContent=text; return div.innerHTML; }
-
-function updateVisualization() {
-    const container=document.getElementById('moodVisualization');
-    if(!container) return;
-    const emojiCounts={};
-    humeurs.forEach(h=>emojiCounts[h.emoji]=(emojiCounts[h.emoji]||0)+1);
-    container.innerHTML=Object.entries(emojiCounts).map(([e,c])=>`<div>${e} x${c}</div>`).join('');
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // ========================================
-// INITIALISATION APP
+// INITIALISATION
 // ========================================
 
 async function initApp() {
-    if(appInitialized) return;
-    appInitialized=true;
-    console.log('🚀 Initialisation App...');
     setupEventListeners();
-    const success = await initSupabase();
-    if(!success) console.warn('⚠️ Mode lecture seule');
-    updateDisplay();
+    const supabaseSuccess = await initSupabase();
+    if (supabaseSuccess) updateDisplay();
 }
 
 function startApp() {
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initApp);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
     else initApp();
 }
 
 startApp();
-
-// ========================================
-// NETTOYAGE
-// ========================================
-
-window.addEventListener('beforeunload', () => {
-    if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    if(connectionCheckInterval) clearInterval(connectionCheckInterval);
-    if(realtimeChannel && supabase) supabase.removeChannel(realtimeChannel);
-});
