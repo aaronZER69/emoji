@@ -96,10 +96,10 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #3ECF8E 0%, #2B7EC8 100%);
+    background: linear-gradient(135deg, #5813d6 0%, #d7f04b 100%);
     min-height: 100vh;
     padding: 20px;
-    color: #333;
+    color: #530000;
 }
 
 .container {
@@ -109,7 +109,7 @@ body {
 
 .header {
     text-align: center;
-    background: white;
+    background: rgb(255, 175, 175);
     padding: 30px;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -117,7 +117,7 @@ body {
 }
 
 .header h1 {
-    color: #3ECF8E;
+    color: #3ea823;
     font-size: 2.5em;
     margin-bottom: 10px;
 }

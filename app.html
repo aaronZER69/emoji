@@ -1,264 +1,249 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎭 Emoji Code Mood - Application</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Design System + Styles d'origine pour compat -->
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Suivi de Symptômes — Cabinet Médical</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f6f8fb;--card:#ffffff;--muted:#6b7280;--accent:#0ea5a4;--danger:#ef4444}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,#f8fafc,#eef2f7);color:#0f172a}
+    .container{max-width:1100px;margin:24px auto;padding:20px}
+    .main-nav{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:12px}
+    .nav-link{padding:8px 12px;border-radius:8px;text-decoration:none;background:transparent;color:var(--muted);border:1px solid transparent}
+    .nav-link.active{background:var(--card);color:#0f172a;border-color:#e6eef3;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+    .page-title{margin:0;font-size:1.5rem}
+    .page-subtitle{margin:.25rem 0 .75rem;color:var(--muted)}
+    .header{background:transparent;padding:12px 0}
+    .stats{display:flex;gap:12px;margin-top:8px}
+    .stat-item{background:var(--card);padding:10px 14px;border-radius:10px;min-width:120px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+    .stat-number{font-weight:700;font-size:1.25rem}
+    .stat-label{color:var(--muted);font-size:.85rem}
+    .main-content{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,.04);}
+    .form-section{flex:1 1 420px}
+    label{display:block;margin-bottom:6px;font-weight:600}
+    input[type=text], select, textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef3;background:#fff}
+    .symptom-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
+    .symptom-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid #eef5f7}
+    .submit-btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#fff;border:none;font-weight:600;cursor:pointer}
+    .display-section{flex:1 1 420px;min-width:320px}
+    .mood-list{max-height:420px;overflow:auto;padding:8px;border-radius:8px;border:1px dashed #e6eef3}
+    .report{padding:10px;border-radius:8px;border-bottom:1px solid #f1f5f9}
+    .meta{font-size:.85rem;color:var(--muted);margin-top:6px}
+    .bar{height:10px;border-radius:999px;background:#e6f6f6;margin-top:6px;overflow:hidden}
+    .bar > span{display:block;height:100%;background:var(--accent);width:0}
+    footer{margin-top:18px;color:var(--muted);font-size:.85rem;text-align:center}
+    .small{font-size:.85rem;color:var(--muted)}
+    .privacy{margin-top:8px;font-size:.82rem;color:#374151}
+    .doctor-toggle{background:#fff;border:1px solid #e6eef3;padding:8px;border-radius:8px;cursor:pointer}
+    @media(max-width:860px){.main-content{flex-direction:column}}
+  </style>
 </head>
-<body class="page-content gradient-bg">
-    <!-- Navigation principale -->
+<body>
+  <div class="container">
     <nav class="main-nav">
-        <a class="nav-link" href="index.html">� Application (index)</a>
-        <a class="nav-link active" href="app.html" aria-current="page">� Ancienne App (copie)</a>
-        <a class="nav-link" href="dashboard.html">🎛 Tableau de bord</a>
-        <a class="nav-link" href="docs/formation/">📚 Formation</a>
-        <a class="nav-link" href="checklist.html">📋 Progression</a>
+      <a class="nav-link active">🏥 Suivi Symptômes</a>
+      <a class="nav-link">📊 Tableau de bord</a>
+      <a class="nav-link">👩‍⚕️ Espace Médecin</a>
+      <a class="nav-link">⚙️ Paramètres</a>
     </nav>
 
-    <div class="container" style="max-width:1200px; margin:0 auto;">
-        <!-- En-tête + statut connexion -->
-        <header class="header" style="padding-top:1rem;">
-            <h1 class="page-title animate-bounce" style="margin-bottom:.25rem;">🎭 Emoji Code Mood</h1>
-            <p class="page-subtitle" style="margin-top:0;">Exprime ton humeur avec tes préférences et découvre l'ambiance de la classe en temps réel !</p>
-            <div class="mode-indicator" id="modeIndicator">
-                <span id="modeIcon">⚡</span>
-                <span id="modeText">Initialisation...</span>
+    <header class="header">
+      <h1 class="page-title">🩺 Suivi de symptômes — Cabinet</h1>
+      <p class="page-subtitle">Déclarez rapidement vos symptômes. Données stockées localement (prototype). Pour production : authentification & hébergement sécurisé (RGPD).</p>
+
+      <div class="stats">
+        <div class="stat-item"><div class="stat-number" id="totalReports">0</div><div class="stat-label">Déclarations</div></div>
+        <div class="stat-item"><div class="stat-number" id="uniquePatients">0</div><div class="stat-label">Patients uniques</div></div>
+        <div class="stat-item"><div class="stat-number" id="symptomVariety">0</div><div class="stat-label">Symptômes différents</div></div>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <section class="form-section card">
+        <h2 style="margin-top:0">📝 Déclarer un symptôme</h2>
+        <form id="reportForm">
+          <div style="margin-bottom:10px">
+            <label for="patientId">Nom / Identifiant patient</label>
+            <input id="patientId" type="text" placeholder="Ex : Dupont / ID:12345" maxlength="60" required>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <label>Symptômes (cochez tout ce qui s'applique)</label>
+            <div class="symptom-grid" id="symptomGrid">
+              <label class="symptom-item"><input type="checkbox" value="Douleur"> Douleur</label>
+              <label class="symptom-item"><input type="checkbox" value="Fièvre"> Fièvre</label>
+              <label class="symptom-item"><input type="checkbox" value="Toux"> Toux</label>
+              <label class="symptom-item"><input type="checkbox" value="Fatigue"> Fatigue</label>
+              <label class="symptom-item"><input type="checkbox" value="Nausée"> Nausée</label>
+              <label class="symptom-item"><input type="checkbox" value="Essoufflement"> Essoufflement</label>
+              <label class="symptom-item"><input type="checkbox" value="Maux de tête"> Maux de tête</label>
+              <label class="symptom-item"><input type="checkbox" value="Diarrhée"> Diarrhée</label>
+              <label class="symptom-item"><input type="checkbox" value="Vertiges"> Vertiges</label>
+              <label class="symptom-item"><input type="checkbox" value="Perte goût/odorat"> Perte goût/odorat</label>
+              <label class="symptom-item"><input type="checkbox" value="Éruption cutanée"> Éruption cutanée</label>
+              <label class="symptom-item"><input type="checkbox" value="Autre"> Autre</label>
             </div>
-            <!-- Statistiques principales -->
-            <div class="stats" style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:1rem;">
-                <div class="stat-item">
-                    <div class="stat-number" id="totalParticipants">0</div>
-                    <div class="stat-label">Participants</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="moodVariety">0</div>
-                    <div class="stat-label">Humeurs</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="sessionTime">0</div>
-                    <div class="stat-label">Minutes</div>
-                </div>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+            <div style="flex:1">
+              <label for="location">Localisation</label>
+              <select id="location" required>
+                <option value="">Choisir...</option>
+                <option value="Tête">Tête</option>
+                <option value="Thorax">Thorax</option>
+                <option value="Abdomen">Abdomen</option>
+                <option value="Membres supérieurs">Membres supérieurs</option>
+                <option value="Membres inférieurs">Membres inférieurs</option>
+                <option value="Généralisé">Généralisé</option>
+              </select>
             </div>
-            <div class="mood-visualization" id="moodVisualization"></div>
-        </header>
-
-        <div class="main-content" style="display:flex; flex-wrap:wrap; gap:2rem; align-items:flex-start;">
-            <!-- Formulaire principal -->
-            <div class="form-section card" style="flex:1 1 380px;">
-                <h2 style="margin-top:0;">📝 Code ton humeur</h2>
-                <form id="moodForm">
-                    <div class="form-group">
-                        <label for="studentName">Ton prénom :</label>
-                        <input type="text" id="studentName" required placeholder="Ex: Alex" maxlength="30">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Choisis ton emoji humeur :</label>
-                        <div class="emoji-selector">
-                            <!-- Jeu d'emojis complet (repris de demo.html) -->
-                            <!-- Énergie et motivation -->
-                            <button type="button" class="emoji-btn" data-emoji="🔥" title="Feu - Motivé à fond">🔥</button>
-                            <button type="button" class="emoji-btn" data-emoji="💪" title="Muscle - Prêt au combat">💪</button>
-                            <button type="button" class="emoji-btn" data-emoji="🚀" title="Fusée - Décollage immédiat">🚀</button>
-                            <button type="button" class="emoji-btn" data-emoji="⚡" title="Éclair - Énergie électrique">⚡</button>
-                            <button type="button" class="emoji-btn" data-emoji="🌟" title="Étoile - Brillant aujourd'hui">🌟</button>
-                            <button type="button" class="emoji-btn" data-emoji="✨" title="Étincelles - Magique">✨</button>
-                            <!-- Fatigue et repos -->
-                            <button type="button" class="emoji-btn" data-emoji="😴" title="Endormi - Mode sieste">😴</button>
-                            <button type="button" class="emoji-btn" data-emoji="🥱" title="Bâillement - Fatigue">🥱</button>
-                            <button type="button" class="emoji-btn" data-emoji="☕" title="Café - Besoin de caféine">☕</button>
-                            <button type="button" class="emoji-btn" data-emoji="🛌" title="Lit - Envie de dormir">🛌</button>
-                            <button type="button" class="emoji-btn" data-emoji="💤" title="ZZZ - Assoupi">💤</button>
-                            <button type="button" class="emoji-btn" data-emoji="🧟" title="Zombie - Mode survie">🧟</button>
-                            <!-- Stress et défi -->
-                            <button type="button" class="emoji-btn" data-emoji="🤯" title="Explosion - Cerveau overload">🤯</button>
-                            <button type="button" class="emoji-btn" data-emoji="😰" title="Sueur - Stress intensif">😰</button>
-                            <button type="button" class="emoji-btn" data-emoji="🥵" title="Chaud - Pression maximum">🥵</button>
-                            <button type="button" class="emoji-btn" data-emoji="😓" title="Goutte sueur - Inquiet">😓</button>
-                            <button type="button" class="emoji-btn" data-emoji="🤪" title="Fou - Complètement perché">🤪</button>
-                            <button type="button" class="emoji-btn" data-emoji="�" title="À l'envers - Monde inversé">�</button>
-                            <!-- Confiance et cool -->
-                            <button type="button" class="emoji-btn" data-emoji="😎" title="Cool - Maître de l'univers">😎</button>
-                            <button type="button" class="emoji-btn" data-emoji="😏" title="Smirk - Je sais tout">😏</button>
-                            <button type="button" class="emoji-btn" data-emoji="�" title="Geek - Mode intellectuel">�</button>
-                            <button type="button" class="emoji-btn" data-emoji="😌" title="Zen - Serein">😌</button>
-                            <button type="button" class="emoji-btn" data-emoji="😊" title="Sourire - Bonne humeur">😊</button>
-                            <button type="button" class="emoji-btn" data-emoji="😁" title="Grand sourire - Joie">�</button>
-                            <!-- Réflexion et questionnement -->
-                            <button type="button" class="emoji-btn" data-emoji="🤔" title="Réflexion - Cogite">🤔</button>
-                            <button type="button" class="emoji-btn" data-emoji="🧐" title="Analyse poussée">🧐</button>
-                            <button type="button" class="emoji-btn" data-emoji="👀" title="Observation">👀</button>
-                            <button type="button" class="emoji-btn" data-emoji="🤨" title="Sceptique">🤨</button>
-                            <button type="button" class="emoji-btn" data-emoji="�" title="Grimace">�</button>
-                            <button type="button" class="emoji-btn" data-emoji="😕" title="Déçu">😕</button>
-                            <!-- Humour et légèreté -->
-                            <button type="button" class="emoji-btn" data-emoji="😅" title="Rire nerveux">😅</button>
-                            <button type="button" class="emoji-btn" data-emoji="�" title="Larmes de joie">�</button>
-                            <button type="button" class="emoji-btn" data-emoji="🤣" title="Rire aux éclats">🤣</button>
-                            <button type="button" class="emoji-btn" data-emoji="😄" title="Sourire éclatant">😄</button>
-                            <button type="button" class="emoji-btn" data-emoji="🥳" title="Fête">🥳</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎉" title="Confettis">🎉</button>
-                            <!-- Tech et geek -->
-                            <button type="button" class="emoji-btn" data-emoji="💻" title="Laptop - Dev">💻</button>
-                            <button type="button" class="emoji-btn" data-emoji="🖥️" title="Desktop">🖥️</button>
-                            <button type="button" class="emoji-btn" data-emoji="⌨️" title="Clavier">⌨️</button>
-                            <button type="button" class="emoji-btn" data-emoji="🤖" title="Robot - IA">🤖</button>
-                            <button type="button" class="emoji-btn" data-emoji="👾" title="Alien - Gaming">👾</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎯" title="Objectif">🎯</button>
-                            <!-- Spéciaux -->
-                            <button type="button" class="emoji-btn" data-emoji="�" title="Licorne">�</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎭" title="Masques">🎭</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎲" title="Hasard">🎲</button>
-                            <button type="button" class="emoji-btn" data-emoji="🌈" title="Arc-en-ciel">🌈</button>
-                            <button type="button" class="emoji-btn" data-emoji="🍕" title="Pizza">🍕</button>
-                            <button type="button" class="emoji-btn" data-emoji="🎸" title="Guitare">🎸</button>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="favoriteLanguage">Mon langage préféré :</label>
-                        <select id="favoriteLanguage" required>
-                            <option value="">Choisis ton langage préféré</option>
-                            <option value="javascript">JavaScript</option>
-                            <option value="typescript">TypeScript</option>
-                            <option value="python">Python</option>
-                            <option value="java">Java</option>
-                            <option value="csharp">C#</option>
-                            <option value="php">PHP</option>
-                            <option value="cpp">C++</option>
-                            <option value="rust">Rust</option>
-                            <option value="go">Go</option>
-                            <option value="kotlin">Kotlin</option>
-                            <option value="swift">Swift</option>
-                            <option value="ruby">Ruby</option>
-                        </select>
-                        <!-- Champ caché pour compat avec main.js (disable/enable #language) -->
-                        <input type="hidden" id="language" value="">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="otherPreference">Ma préférence tech :</label>
-                        <select id="otherPreference" required>
-                            <option value="">Choisis ta préférence</option>
-                            <optgroup label="🎮 Gaming & Fun">
-                                <option value="jeux-video">Jeux vidéo</option>
-                                <option value="streaming">Streaming</option>
-                                <option value="youtube">YouTube</option>
-                                <option value="twitch">Twitch</option>
-                            </optgroup>
-                            <optgroup label="🎨 Design & Créativité">
-                                <option value="design">Design graphique</option>
-                                <option value="photoshop">Photoshop</option>
-                                <option value="video-editing">Montage vidéo</option>
-                                <option value="ui-ux">UI/UX</option>
-                            </optgroup>
-                            <optgroup label="🎵 Musique & Audio">
-                                <option value="musique">Écouter de la musique</option>
-                                <option value="spotify">Spotify</option>
-                                <option value="production-musicale">Production musicale</option>
-                                <option value="podcasts">Podcasts</option>
-                            </optgroup>
-                            <optgroup label="🤖 Tech & IA">
-                                <option value="intelligence-artificielle">Intelligence Artificielle</option>
-                                <option value="chatgpt">ChatGPT</option>
-                                <option value="robotique">Robotique</option>
-                                <option value="blockchain">Blockchain</option>
-                            </optgroup>
-                            <optgroup label="📱 Mobile & Apps">
-                                <option value="apps-mobiles">Apps mobiles</option>
-                                <option value="tiktok">TikTok</option>
-                                <option value="instagram">Instagram</option>
-                                <option value="snapchat">Snapchat</option>
-                            </optgroup>
-                            <optgroup label="🏃 Sport & Activités">
-                                <option value="sport">Sport</option>
-                                <option value="fitness">Fitness</option>
-                                <option value="course">Course à pied</option>
-                                <option value="velo">Vélo</option>
-                            </optgroup>
-                            <optgroup label="🎬 Cinéma & Séries">
-                                <option value="netflix">Netflix</option>
-                                <option value="series">Séries TV</option>
-                                <option value="cinema">Cinéma</option>
-                                <option value="disney">Disney+</option>
-                            </optgroup>
-                            <optgroup label="📚 Apprentissage">
-                                <option value="lecture">Lecture</option>
-                                <option value="cours-en-ligne">Cours en ligne</option>
-                                <option value="langues">Apprendre des langues</option>
-                                <option value="tutoriels">Tutoriels</option>
-                            </optgroup>
-                            <optgroup label="🍔 Lifestyle">
-                                <option value="cuisine">Cuisine</option>
-                                <option value="voyage">Voyage</option>
-                                <option value="shopping">Shopping</option>
-                                <option value="nature">Nature</option>
-                            </optgroup>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="comment">Commentaire (optionnel) :</label>
-                        <input type="text" id="comment" placeholder="Clique pour des idées..." list="commentSuggestions" maxlength="100">
-                        <datalist id="commentSuggestions">
-                            <option value="prêt pour attaquer les projets">
-                            <option value="besoin d'un deuxième café">
-                            <option value="cerveau en surchauffe">
-                            <option value="easy peasy lemon squeezy">
-                            <option value="mode réflexion intense">
-                            <option value="je fais semblant de comprendre">
-                            <option value="404 motivation not found">
-                            <option value="humeur de licorne cosmique">
-                            <option value="while(motivation) { code(); }">
-                            <option value="git commit -m 'nouvelle année'">
-                            <option value="printf('hello world');">
-                            <option value="sudo apt install motivation">
-                            <option value="import bonheur from 'vacances'">
-                            <option value="let humeur = 'géniale'">
-                            <option value="humeur = 'au top'">
-                            <option value="feeling like a coding wizard">
-                            <option value="mode ninja developer activated">
-                        </datalist>
-                    </div>
-
-                    <button type="submit" class="submit-btn" id="submitBtn">Envoyer mon code humeur ! 🚀</button>
-                </form>
-                <p style="font-size:.75rem;color:#666; margin-top:1rem;">Raccourci enseignant : Ctrl + Shift + A</p>
+            <div style="width:160px">
+              <label for="intensity">Intensité (0-10)</label>
+              <input id="intensity" type="range" min="0" max="10" value="3">
+              <div class="small">Valeur : <span id="intensityValue">3</span></div>
             </div>
+          </div>
 
-            <!-- Affichage temps réel -->
-            <div class="display-section" style="flex:1 1 460px; min-width:340px;">
-                <h2 style="margin-top:0;">💻 Ambiance de la classe</h2>
-                <div class="mood-list social-feed" id="moodList">
-                    <div class="loading">
-                        <p>🤖 En attente des premiers codes humeur...</p>
-                        <p style="font-size: 0.9em; margin-top: 10px; color: #666;">Partage ton humeur pour commencer !</p>
-                    </div>
-                </div>
-            </div>
+          <div style="margin-bottom:10px">
+            <label for="comment">Commentaire (optionnel)</label>
+            <textarea id="comment" rows="3" placeholder="Ex : apparu après effort, amélioration après médication..."></textarea>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="submit-btn" type="submit">Envoyer ma déclaration</button>
+            <button type="button" id="clearBtn" class="doctor-toggle">Effacer les données locales</button>
+          </div>
+
+          <p class="privacy">Prototype — données stockées localement dans le navigateur. Pour une version production : mettre en place authentification, stockage chiffré et conformité RGPD.</p>
+        </form>
+      </section>
+
+      <aside class="display-section">
+        <h2 style="margin-top:0">📋 Flux des déclarations</h2>
+        <div class="mood-list" id="reportList">
+          <div class="loading">Aucune déclaration pour le moment — soyez le premier·ère.</div>
         </div>
 
-        <!-- Panneau admin caché injecté dynamiquement (hiddenAdminPanel) -->
+        <h3 style="margin-top:12px">🔎 Résumé</h3>
+        <div class="card" id="summaryCard">
+          <div class="small">Top symptômes (par fréquence)</div>
+          <div id="symptomBars" style="margin-top:8px"></div>
+        </div>
+      </aside>
     </div>
 
-    <footer class="dashboard-footer" style="margin-top:3rem;">© <span id="year"></span> Emoji Code Mood • Pédagogie & Temps Réel</footer>
+    <footer>© <span id="year"></span> Cabinet — Prototype de suivi • Ne remplace pas un avis médical.</footer>
+  </div>
 
-    <!-- Configuration privée (injectée par GitHub Actions en production) -->
-    <script src="private-config.js"></script>
-    <!-- Client Supabase (utilisé via import dans main.js) -->
-    <script type="module" src="main.js"></script>
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-        // Synchroniser valeur cachée #language pour compat éventuelle
-        const fav = document.getElementById('favoriteLanguage');
-        const hiddenLang = document.getElementById('language');
-        fav.addEventListener('change', () => hiddenLang.value = fav.value);
-    </script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const form = document.getElementById('reportForm');
+    const reportList = document.getElementById('reportList');
+    const totalReportsEl = document.getElementById('totalReports');
+    const uniquePatientsEl = document.getElementById('uniquePatients');
+    const symptomVarietyEl = document.getElementById('symptomVariety');
+    const intensity = document.getElementById('intensity');
+    const intensityValue = document.getElementById('intensityValue');
+    const clearBtn = document.getElementById('clearBtn');
+
+    intensity.addEventListener('input', () => intensityValue.textContent = intensity.value);
+
+    // récupérer les rapports depuis localStorage
+    function loadReports(){
+      try{
+        const raw = localStorage.getItem('symptomReports');
+        return raw ? JSON.parse(raw) : [];
+      }catch(e){console.error('Erreur lecture storage',e); return []}
+    }
+
+    function saveReports(list){
+      localStorage.setItem('symptomReports', JSON.stringify(list));
+    }
+
+    function renderReports(){
+      const reports = loadReports();
+      reportList.innerHTML = '';
+      if(reports.length===0){ reportList.innerHTML = '<div class="loading">Aucune déclaration pour le moment — soyez le premier·ère.</div>'; }
+      reports.slice().reverse().forEach(r => {
+        const el = document.createElement('div'); el.className='report';
+        el.innerHTML = `<strong>${escapeHtml(r.patient)}</strong> — <span class="small">${new Date(r.time).toLocaleString()}</span>
+          <div class="meta">Symptômes: ${escapeHtml(r.symptoms.join(', ') || '—')} • Localisation: ${escapeHtml(r.location)} • Intensité: ${r.intensity}</div>
+          ${r.comment ? `<div class="small" style="margin-top:6px">Note : ${escapeHtml(r.comment)}</div>` : ''}`;
+        reportList.appendChild(el);
+      });
+      renderSummary();
+    }
+
+    function renderSummary(){
+      const reports = loadReports();
+      // stats
+      totalReportsEl.textContent = reports.length;
+      const patients = new Set(reports.map(r=>r.patient));
+      uniquePatientsEl.textContent = patients.size;
+      // symptom variety
+      const allSymptoms = reports.flatMap(r=>r.symptoms);
+      const uniqueSymptoms = new Set(allSymptoms.filter(Boolean));
+      symptomVarietyEl.textContent = uniqueSymptoms.size;
+
+      // frequency
+      const freq = {};
+      for(const s of allSymptoms){ if(!s) continue; freq[s] = (freq[s]||0)+1 }
+      const entries = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+
+      const container = document.getElementById('symptomBars'); container.innerHTML='';
+      if(entries.length===0){ container.innerHTML = '<div class="small">Aucune donnée.</div>'; return }
+
+      const max = entries[0][1];
+      for(const [sym,count] of entries.slice(0,8)){
+        const wrapper = document.createElement('div'); wrapper.style.marginBottom='8px';
+        const title = document.createElement('div'); title.textContent = `${sym} — ${count}`; title.className='small';
+        const bar = document.createElement('div'); bar.className='bar';
+        const inner = document.createElement('span'); inner.style.width = Math.round((count/max)*100)+'%';
+        bar.appendChild(inner);
+        wrapper.appendChild(title); wrapper.appendChild(bar);
+        container.appendChild(wrapper);
+      }
+    }
+
+    function escapeHtml(s){ if(!s && s!==0) return ''; return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m] }); }
+
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const patient = document.getElementById('patientId').value.trim();
+      if(!patient) return alert('Veuillez renseigner l\'identifiant patient.');
+      const checkboxes = Array.from(document.querySelectorAll('#symptomGrid input[type=checkbox]'));
+      const symptoms = checkboxes.filter(c=>c.checked).map(c=>c.value);
+      if(symptoms.length===0) return alert('Sélectionnez au moins un symptôme.');
+      const location = document.getElementById('location').value;
+      if(!location) return alert('Choisissez une localisation.');
+      const comment = document.getElementById('comment').value.trim();
+      const intensityVal = parseInt(document.getElementById('intensity').value,10);
+
+      const reports = loadReports();
+      reports.push({patient, symptoms, location, comment, intensity: intensityVal, time: new Date().toISOString()});
+      saveReports(reports);
+      renderReports();
+
+      // feedback rapide
+      form.reset(); intensity.value=3; intensityValue.textContent='3';
+      // keep first checkbox state cleared
+      alert('Déclaration enregistrée (prototype local).');
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      if(!confirm('Effacer toutes les données locales de test ?')) return;
+      localStorage.removeItem('symptomReports');
+      renderReports();
+    });
+
+    // initial render
+    renderReports();
+  </script>
 </body>
 </html>
