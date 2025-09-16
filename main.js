@@ -295,46 +295,7 @@ function updateVisualization() {
 // ========================================
 // INITIALISATION APP
 // ========================================
-function setupEventListeners() {
-    console.log('🔧 Initialisation des interactions utilisateur');
 
-    // Boutons emoji
-    const emojiButtons = document.querySelectorAll('.emoji-btn');
-    emojiButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            selectedEmoji = btn.dataset.emoji;
-            console.log('😊 Emoji sélectionné:', selectedEmoji);
-        });
-    });
-
-    // Formulaire
-    const form = document.getElementById('moodForm');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            submitMood();
-        });
-        console.log('✅ Formulaire configuré');
-    }
-
-    // Raccourcis clavier
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-            e.preventDefault();
-            toggleAdminPanel();
-        }
-        if (e.ctrlKey && e.key === 'e') {
-            e.preventDefault();
-            exportMoods();
-        }
-        if (e.ctrlKey && e.key === 'j') {
-            e.preventDefault();
-            exportMoodsJSON();
-        }
-    });
-}
 async function initApp() {
     if(appInitialized) return;
     appInitialized=true;
