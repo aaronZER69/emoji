@@ -7,7 +7,7 @@ Tout le monde.
 
 
 
-👉 **[Voir l'application](https://ggaillard.github.io/emoji-code-mood/)** | � **[Tableau de bord](https://ggaillard.github.io/emoji-code-mood/dashboard.html)** | 📚 **[Formation](docs/formation/)** | ⚙️ **[Installation](docs/setup/)** | 📖 **[Documentation](docs/)**
+👉 **[Voir l'application](https://aaronzer69.github.io/emoji/index.html)** | � **[Tableau de bord](https://aaronzer69.github.io/emoji/dashboard.html)** | 📚 **[Formation](docs/formation/)** | ⚙️ **[Installation](docs/setup/)** | 📖 **[Documentation](docs/)**
 
 ---
 
