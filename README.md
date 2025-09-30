@@ -1,5 +1,5 @@
 
-# 🎭 Emoji Code Humeur
+# 🎭 Suivi de symptomes
 
 ## Public ciblé
 
